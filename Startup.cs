@@ -74,16 +74,28 @@ namespace MiddlewarePractices
                 Console.WriteLine("Middleware 3 sonlandırılıyor");
             }); */
 
-             app.Use(async(context ,next) =>{
+            app.Use(async (context, next) =>
+            {
                 Console.WriteLine("Use Middleware tetiklendi");
                 await next.Invoke();
-            }); 
+            });
+            //app.Map
+            app.Map("/example", internalApp =>
+             internalApp.Run(async context =>
+             {
+                 Console.WriteLine("/example middleware tetiklendi");
+                 await context.Response.WriteAsync("/example middleware tetiklendi");
+             }));
 
-            app.Map("/example",internalApp => 
-            internalApp.Run(async context => {
-                Console.WriteLine("/example middleware tetiklendi");
-                await context.Response.WriteAsync("/example middleware tetiklendi");
-            }));
+            //app.MapWhen
+            app.MapWhen(x => x.Request.Method == "GET", internalApp =>
+            {
+                internalApp.Run(async context =>
+                {
+                    Console.WriteLine("MapWhen Middleware tetiklendi.");
+                    await context.Response.WriteAsync("MapWhen Middleware tetiklendi.");
+                });
+            });
 
             app.UseEndpoints(endpoints =>
             {
